@@ -276,3 +276,12 @@ img:not([src]) {
         color: #666666;
     }
 }
+
+/* Search input text and placeholder visibility */
+.search-input {
+    color: #000000;
+}
+.search-input::placeholder {
+    color: #000000;
+    opacity: 1;
+}

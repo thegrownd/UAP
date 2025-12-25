@@ -92,7 +92,7 @@
             <!-- Content -->
             <div class="p-5">
               <h2 class="text-xl font-bold mb-2 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                {{ a.title }}
+                <span :class="isSearching ? 'text-[#000000]' : ''">{{ a.title }}</span>
               </h2>
               
               <div class="flex items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
@@ -107,7 +107,7 @@
                 <span>{{ formatDate(a.created_at) }}</span>
               </div>
 
-              <p class="text-gray-700 dark:text-gray-300 text-sm line-clamp-3 mb-4">{{ a.content }}</p>
+              <p :class="['text-sm line-clamp-3 mb-4', isSearching ? 'text-[#000000]' : 'text-gray-700 dark:text-gray-300']">{{ a.content }}</p>
 
               <!-- Action Buttons -->
               <div class="flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-700">
@@ -283,18 +283,51 @@ const fetch = async () => {
 }
 onMounted(fetch)
 
-const filteredArticles = computed(() =>
-  filter.value ? articles.value.filter(a => a.category === filter.value) : articles.value
-)
+const searchTerm = computed(() => {
+  try {
+    return String(route.query.q ?? '').trim()
+  } catch (e) {
+    console.error('Search term parse error', e)
+    return ''
+  }
+})
+
+const filteredArticles = computed(() => {
+  try {
+    let base = Array.isArray(articles.value) ? articles.value : []
+    const term = searchTerm.value.toLowerCase()
+    if (term) {
+      base = base.filter(a =>
+        String(a.title ?? '').toLowerCase().includes(term) ||
+        String(a.content ?? '').toLowerCase().includes(term)
+      )
+    }
+    if (filter.value) {
+      base = base.filter(a => a.category === filter.value)
+    }
+    return base
+  } catch (err) {
+    console.error('Search filtering error', err)
+    return Array.isArray(articles.value) ? articles.value : []
+  }
+})
 
 const route = useRoute()
 const router = useRouter()
+const isSearching = computed(() => !!route.query.q)
 
-watch(() => route.query.q, (q) => {
-  if (!q) return
-  const term = String(q).toLowerCase()
-  articles.value = articles.value.filter(a => a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term))
-})
+watch(() => route.query.q, (q, prev) => {
+  try {
+    const term = String(q ?? '').toLowerCase()
+    const matches = (Array.isArray(articles.value) ? articles.value : []).filter(a =>
+      String(a.title ?? '').toLowerCase().includes(term) ||
+      String(a.content ?? '').toLowerCase().includes(term)
+    ).length
+    console.debug('Search term changed', { previous: prev ?? '', current: q ?? '', matches })
+  } catch (e) {
+    console.error('Search watch error', e)
+  }
+}, { flush: 'post' })
 
 const labelClass = (cat) => {
   switch (cat) {

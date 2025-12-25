@@ -39,7 +39,7 @@
                 @keyup.enter="search" 
                 type="search" 
                 placeholder="Cari artikel..." 
-                class="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-white text-[--color-primary] placeholder-gray-500 border border-white/20 outline-none focus:border-white transition-all"
+                class="search-input w-64 pl-10 pr-4 py-2.5 rounded-xl bg-white text-black placeholder-[#000000] border border-white/20 outline-none focus:border-white transition-all"
               />
               <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/70 group-focus-within:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -106,7 +106,7 @@
                 @keyup.enter="search" 
                 type="search" 
                 placeholder="Cari artikel..." 
-                class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white text-[--color-primary] placeholder-gray-500 border border-white/20 outline-none focus:border-white transition-all"
+                class="search-input w-full pl-10 pr-4 py-2.5 rounded-xl bg-white text-black placeholder-[#000000] border border-white/20 outline-none focus:border-white transition-all"
               />
               <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/70" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -222,10 +222,14 @@ const toggleTheme = () => {
 onMounted(applyTheme)
 
 const search = () => {
-  if (q.value.trim()) {
-    router.push({ path: '/', query: { q: q.value } })
-    menuOpen.value = false
+  const term = q.value.trim()
+  if (term) {
+    router.push({ path: '/', query: { q: term } })
+  } else {
+    router.push({ path: '/', query: {} })
   }
+  console.debug('Search submitted', { query: term })
+  menuOpen.value = false
 }
 
 const goNews = () => {
