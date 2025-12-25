@@ -78,4 +78,32 @@ class ArticleTest extends TestCase
             'model_type' => Article::class,
         ]);
     }
+
+    public function test_admin_can_edit_any_article(): void
+    {
+        $author = User::factory()->create();
+        $admin = User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'is_admin' => true,
+        ]);
+        $authorToken = JWTAuth::fromUser($author);
+        $adminToken = JWTAuth::fromUser($admin);
+
+        // Author creates article
+        $create = $this->postJson('/api/articles', [
+            'title' => 'Judul',
+            'content' => 'Konten',
+            'category' => 'Game',
+            'image_url' => 'https://picsum.photos/seed/test-edit-admin/800/450',
+        ], ['Authorization' => "Bearer {$authorToken}"]);
+        $create->assertCreated();
+        $articleId = $create->json('article.id');
+
+        // Admin updates author's article
+        $update = $this->putJson("/api/articles/{$articleId}", [
+            'title' => 'Judul Diubah Oleh Admin',
+        ], ['Authorization' => "Bearer {$adminToken}"]);
+        $update->assertOk()->assertJsonPath('article.title', 'Judul Diubah Oleh Admin');
+    }
 }

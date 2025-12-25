@@ -39,6 +39,10 @@ const submit = async () => {
   try {
     const { data } = await axios.post('/auth/login', { email: email.value, password: password.value })
     localStorage.setItem('token', data.access_token)
+    if (data?.user?.id) {
+      localStorage.setItem('user_id', String(data.user.id))
+    }
+    localStorage.setItem('is_admin', String(!!data.user?.is_admin))
     const isSuper = !!data.user?.is_admin && data.user?.email === 'admin@gmail.com'
     localStorage.setItem('is_super_admin', String(isSuper))
     window.location.href = '/'

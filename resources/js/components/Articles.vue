@@ -117,7 +117,7 @@
                   </svg>
                   Baca
                 </button>
-                <router-link v-if="isAuth" :to="`/articles/${a.id}/edit`" class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
+                <router-link v-if="isAuth && (currentUserId === a.user_id || isAdmin)" :to="`/articles/${a.id}/edit`" class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
                   <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
                   </svg>
@@ -271,6 +271,11 @@ const videos = ref([
 const filter = ref('')
 const isAuth = computed(() => !!localStorage.getItem('token'))
 const isSuperAdmin = computed(() => localStorage.getItem('is_super_admin') === 'true')
+const isAdmin = computed(() => localStorage.getItem('is_admin') === 'true' || isSuperAdmin.value)
+const currentUserId = computed(() => {
+  const val = localStorage.getItem('user_id')
+  return val ? Number(val) : null
+})
 
 const fetch = async () => {
   const { data } = await axios.get('/articles')

@@ -66,7 +66,10 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
-        if ($article->user_id !== auth('api')->id()) {
+        $user = auth('api')->user();
+        $isAdmin = $user && (bool) ($user->is_admin ?? false);
+        $isOwner = $article->user_id === auth('api')->id();
+        if (! $isOwner && ! $isAdmin) {
             return response()->json([
                 'message' => 'Anda tidak memiliki izin untuk mengubah artikel ini'
             ], 403);
